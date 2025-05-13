@@ -1,3 +1,5 @@
+📘 README.md
+md
 # 🎮 Color Grid: Sync Logic
 
 A minimalist, logic-based mobile puzzle game built in Unity (2D) for Android & iOS.
@@ -45,3 +47,12 @@ Tap to rotate tiles and sync all of them to match the target color pattern. Each
 ```bash
 git clone https://github.com/yourname/color-grid-sync.git
 cd color-grid-sync
+Open in Unity Hub (2022.3+)
+
+Run scene: Scenes/Main.unity
+
+For Android/iOS:
+
+Go to File → Build Settings → Switch Platform
+
+Configure Player Settings → Build & Run
