@@ -1,5 +1,3 @@
-📘 README.md
-md
 # 🎮 Color Grid: Sync Logic
 
 A minimalist, logic-based mobile puzzle game built in Unity (2D) for Android & iOS.
