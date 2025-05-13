@@ -4,23 +4,21 @@ using UnityEngine.UI;
 public class Tile : MonoBehaviour
 {
     public Image tileImage;
-    public int colorIndex = 0;
+    public int colorIndex;
     public Color[] colors;
-    public Vector2Int gridPos;
+    public Vector2Int gridPosition;
 
-    public void Initialize(Vector2Int pos, Color[] colorSet)
+    public void Initialize(Color[] colorSet, int startIndex, Vector2Int position)
     {
-        gridPos = pos;
         colors = colorSet;
-        colorIndex = Random.Range(0, colors.Length);
+        colorIndex = startIndex;
+        gridPosition = position;
         UpdateColor();
     }
 
     public void OnClick()
     {
-        RotateColor();
-        GameManager.Instance.AffectAdjacent(gridPos);
-        GameManager.Instance.CheckWinCondition();
+        GameManager.Instance.OnTileClicked(gridPosition);
     }
 
     public void RotateColor()
@@ -29,8 +27,15 @@ public class Tile : MonoBehaviour
         UpdateColor();
     }
 
+    public void SetColorIndex(int index)
+    {
+        colorIndex = index;
+        UpdateColor();
+    }
+
     public void UpdateColor()
     {
         tileImage.color = colors[colorIndex];
     }
 }
+
