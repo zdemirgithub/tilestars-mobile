@@ -1,66 +1,91 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
     public GridManager gridManager;
+    public UIManager uiManager;
+    public LevelData[] levels;
     public Tile[,] tiles;
-    public Color[] colors;
-    public int gridSize = 3;
-    public int maxMoves = 10;
-    private int currentMoves = 0;
+    public int currentLevelIndex = 0;
+    private LevelData currentLevel;
+    private int moveCount = 0;
 
     private void Awake()
     {
         Instance = this;
-        tiles = new Tile[gridSize, gridSize];
     }
 
     private void Start()
     {
-        gridManager.gridSize = gridSize;
-        gridManager.CreateGrid(colors);
+        LoadLevel(currentLevelIndex);
     }
 
-    public void AffectAdjacent(Vector2Int pos)
+    public void LoadLevel(int index)
     {
-        currentMoves++;
+        currentLevel = levels[index];
+        moveCount = 0;
+        uiManager.UpdateMoves(moveCount, currentLevel.moveLimit);
+        gridManager.GenerateGrid(currentLevel);
+    }
 
-        Vector2Int[] dirs = {
-            new Vector2Int(1, 0),
-            new Vector2Int(-1, 0),
-            new Vector2Int(0, 1),
-            new Vector2Int(0, -1)
-        };
+    public void OnTileClicked(Vector2Int pos)
+    {
+        moveCount++;
+        uiManager.UpdateMoves(moveCount, currentLevel.moveLimit);
 
-        foreach (var dir in dirs)
+        ApplyPattern(pos);
+
+        if (CheckWinCondition())
         {
-            Vector2Int checkPos = pos + dir;
-            if (checkPos.x >= 0 && checkPos.y >= 0 && checkPos.x < gridSize && checkPos.y < gridSize)
+            uiManager.ShowWinPanel();
+        }
+        else if (moveCount >= currentLevel.moveLimit)
+        {
+            uiManager.ShowLosePanel();
+        }
+    }
+
+    private void ApplyPattern(Vector2Int pos)
+    {
+        Vector2Int[] pattern = currentLevel.pattern;
+
+        foreach (Vector2Int offset in pattern)
+        {
+            Vector2Int target = pos + offset;
+            if (target.x >= 0 && target.y >= 0 &&
+                target.x < currentLevel.gridSize && target.y < currentLevel.gridSize)
             {
-                tiles[checkPos.x, checkPos.y].RotateColor();
+                tiles[target.x, target.y].RotateColor();
             }
         }
+
+        tiles[pos.x, pos.y].RotateColor(); // Also rotate the clicked tile
     }
 
-    public void CheckWinCondition()
+    private bool CheckWinCondition()
     {
-        int firstColor = tiles[0, 0].colorIndex;
+        int targetColor = tiles[0, 0].colorIndex;
 
-        foreach (var tile in tiles)
+        foreach (Tile tile in tiles)
         {
-            if (tile.colorIndex != firstColor)
-                return;
+            if (tile.colorIndex != targetColor)
+                return false;
         }
 
-        Debug.Log("🎉 You Win!");
-        // Restart or Show UI
+        return true;
     }
 
-    public void RestartGame()
+    public void RestartLevel()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        LoadLevel(currentLevelIndex);
+    }
+
+    public void NextLevel()
+    {
+        currentLevelIndex = (currentLevelIndex + 1) % levels.Length;
+        LoadLevel(currentLevelIndex);
     }
 }
+
